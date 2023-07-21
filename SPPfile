@@ -1,0 +1,29 @@
+# This plugin processes <File | Native | Another> source
+# Link: <link to source website>
+# Author:
+#	Ф.И.О
+#	NSPK DI
+
+SOURCE <source name>
+
+# Тут указывается имя файла с парсером
+PARSER source_parser
+
+SETENV LogMode debug
+
+# Этот параметр нужен, если ты имеешь дело с противным источником.
+BUS_ADD s_download PARSER/SOURCE_PARSER_CLASS/nasty_download
+
+# Тут указывается класс парсера и метод, который платформа будет вызывать
+START SOURCE_PARSER_CLASS content
+
+
+# Такая конфигурация модулей подходит для "файловых противных источников"
+ADD FilterOnlyNewDocumentWithDB
+ADD DownloadDocumentsThroughSeleniumTemp
+ADD ExtractTextFromFile
+ADD UploadDocumentToDB
+
+# Такая конфигурация модулей подходит для "Нативных источников"
+ADD FilterOnlyNewDocumentWithDB
+ADD UploadDocumentToDB
