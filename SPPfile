@@ -1,29 +1,21 @@
-# This plugin processes <File | Native | Another> source
-# Link: <link to source website>
+# This plugin processes File source
+# Link: https://www.pcisecuritystandards.org
 # Author:
-#	Ф.И.О
+#	Roman Lupashko
 #	NSPK DI
 
-SOURCE <source name>
+SOURCE pci
 
-# Тут указывается имя файла с парсером
-PARSER source_parser
+PARSER pci
 
 SETENV LogMode debug
 
-# Этот параметр нужен, если ты имеешь дело с противным источником.
-BUS_ADD s_download PARSER/SOURCE_PARSER_CLASS/nasty_download
+BUS_ADD s_download PARSER/PCI/temp_download
 
-# Тут указывается класс парсера и метод, который платформа будет вызывать
-START SOURCE_PARSER_CLASS content
+INIT driver WebDriver
+START PCI content
 
-
-# Такая конфигурация модулей подходит для "файловых противных источников"
 ADD FilterOnlyNewDocumentWithDB
 ADD DownloadDocumentsThroughSeleniumTemp
 ADD ExtractTextFromFile
-ADD UploadDocumentToDB
-
-# Такая конфигурация модулей подходит для "Нативных источников"
-ADD FilterOnlyNewDocumentWithDB
 ADD UploadDocumentToDB
