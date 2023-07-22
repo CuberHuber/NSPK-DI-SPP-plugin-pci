@@ -98,10 +98,14 @@ class PCI:
         :return:
         :rtype:
         """
+        self.logger.debug(F"Parser enter to {self.HOST}")
+
+        # ========================================
+        # Тут должен находится блок кода, отвечающий за парсинг конкретного источника
+        # -
         self.driver.set_page_load_timeout(40)
         self.driver.get(url=self.HOST)
         time.sleep(2)
-        self.logger.debug(F"Parser enter to {self.HOST}")
 
         # прохождение панели с куками
         ccc_accept = self.driver.find_element(By.ID, 'ccc-notify-accept')
@@ -189,9 +193,12 @@ class PCI:
         time.sleep(5)
         self.driver.close()
         self.driver.quit()
+        # ---
+        # ========================================
         ...
 
-    def _find_document_text_for_logger(self, doc: SPP_document):
+    @staticmethod
+    def _find_document_text_for_logger(doc: SPP_document):
         return f"Find document | name: {doc.title} | link to web: {doc.web_link} | publication date: {doc.pub_date}"
 
     @staticmethod
@@ -214,7 +221,7 @@ class PCI:
     @staticmethod
     def nasty_download(driver, path: str, url: str) -> str:
         """
-        Метод для "противных" источников. Для разных источника он может отличатся.
+        Метод для "противных" источников. Для разных источника он может отличаться.
         Но основной его задачей является:
             доведение driver селениума до файла непосредственно.
 
