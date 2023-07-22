@@ -3,7 +3,7 @@
 
 1/2 документ плагина
 """
-
+import logging
 import os
 import time
 from datetime import datetime
@@ -54,7 +54,7 @@ class PCI:
         'Case Study',
     )
     HOST = 'https://www.pcisecuritystandards.org/document_library/'
-    SOURCE_NAME = 'PCI'
+    SOURCE_NAME = 'pci'
 
     CATEGORY_CLASS_NAME = 'doc_library_category parent_category'
     SUB_CATEGORY_CLASS_NAME = 'doc_library_category category'
@@ -62,7 +62,7 @@ class PCI:
 
     DOCUMENT_TYPE = ''
 
-    def __init__(self, driver, logDriver=None, document_type: str = 'All Document'):
+    def __init__(self, driver, document_type: str = 'All Document'):
         """
         Конструктор класса парсера
 
@@ -72,10 +72,13 @@ class PCI:
         assert document_type in self._DOCUMENT_TYPES
         self.DOCUMENT_TYPE = document_type
         self.driver = driver
-        self.log = logDriver
+        self.logger = logging.getLogger(self.__class__.__name__)
 
         # Обнуление списка
         self._content_document = []
+
+        self.logger.debug(f"Parser class init completed")
+        self.logger.info(f"Set source: {self.SOURCE_NAME}")
         ...
 
     def content(self) -> list[SPP_document]:
@@ -84,7 +87,9 @@ class PCI:
         :return:
         :rtype:
         """
+        self.logger.debug("Parse process start")
         self._parse()
+        self.logger.debug("Parse process finished")
         return self._content_document
 
     def _parse(self):
@@ -96,11 +101,13 @@ class PCI:
         self.driver.set_page_load_timeout(40)
         self.driver.get(url=self.HOST)
         time.sleep(2)
+        self.logger.debug(F"Parser enter to {self.HOST}")
 
         # прохождение панели с куками
         ccc_accept = self.driver.find_element(By.ID, 'ccc-notify-accept')
         if WebDriverWait(self.driver, 5).until(ec.element_to_be_clickable(ccc_accept)):
             ccc_accept.click()
+            self.logger.debug(F"Parser enter notify accept")
 
         # Прокрутка до области с выбором типа документов
         WebDriverWait(self.driver, 5).until(ec.presence_of_element_located((By.ID, 'results')))
@@ -158,7 +165,7 @@ class PCI:
                     link_to_document = row.find_element(By.TAG_NAME, 'a').get_attribute('href')
                     document_version, document_pub_date = self._get_version_and_date(document_version_and_pub_date)
 
-                    self._content_document.append(SPP_document(
+                    document = SPP_document(
                         doc_id=None,
                         title=document_name,
                         abstract=None,
@@ -173,16 +180,19 @@ class PCI:
                         },
                         pub_date=document_pub_date,
                         load_date=None,
-                    ))
-                    print(
-                        f'[DATA]\t|\tcategory[{current_category}], sub_category[{current_sub_category}], '
-                        f'document[{document_name}], version[{document_version_and_pub_date}], '
-                        f'href[{link_to_document}]')
+                    )
+
+                    self._content_document.append(document)
+
+                    self.logger.info(self._find_document_text_for_logger(document))
 
         time.sleep(5)
         self.driver.close()
         self.driver.quit()
         ...
+
+    def _find_document_text_for_logger(self, doc: SPP_document):
+        return f"Find document | name: {doc.title} | link to web: {doc.web_link} | publication date: {doc.pub_date}"
 
     @staticmethod
     def _get_version_and_date(ctx: str) -> tuple[str, datetime]:

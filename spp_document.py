@@ -16,7 +16,7 @@ class SPP_document:
     local_link: str | None
     other_data: dict | None
     pub_date: datetime
-    load_date: datetime
+    load_date: datetime | None
 
     @property
     def hash(self):
