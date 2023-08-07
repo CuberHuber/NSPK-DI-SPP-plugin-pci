@@ -237,9 +237,9 @@ class PCI:
         """
 
         with driver:
-            driver.set_page_load_timeout(40)
+            driver.set_page_load_timeout(60)
             driver.get(url=url)
-            time.sleep(1)
+            time.sleep(3)
 
             # ========================================
             # Тут должен находится блок кода, отвечающий за конкретный источник
